@@ -1,0 +1,12 @@
+{
+    "version":"0.0",
+    "name": "rony539/php-framework",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Rony539\\PhpFramework\\": "src/",
+            "Rony539\\PhpFramework\\Example\\": "example/"
+        }
+    },
+    "require": {}
+}
