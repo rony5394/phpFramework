@@ -2,7 +2,7 @@
 namespace Rony539\PhpFramework\Example;
 require_once __DIR__."/../vendor/autoload.php";
 
-define("TEST_DB_PATH", __DIR__."/../vendor/autoload.php");
+define("TEST_DB_PATH", __DIR__."/../testing.json");
 
 set_exception_handler(function ($exception) {
     http_response_code(500);
