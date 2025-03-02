@@ -10,10 +10,10 @@ class Router {
 		$this->routes[$httpPath][$httpMethod] = $handler;
 	}
 
-	public function dispatch(string $requestedHttpMethod, string $requestedHttpPath): int | object {
+	public function dispatch(string $requestedHttpMethod, string $requestedHttpPath): void {
 
-		if(!isset($this->routes[$requestedHttpPath]))return 404;
-		if(!isset($this->routes[$requestedHttpPath][$requestedHttpMethod]))return 405;
+		if(!isset($this->routes[$requestedHttpPath])){http_response_code( 404);exit;}
+		if(!isset($this->routes[$requestedHttpPath][$requestedHttpMethod])){http_response_code(405);exit;}
 
 		$this->routes[$requestedHttpPath][$requestedHttpMethod]();
 	}
