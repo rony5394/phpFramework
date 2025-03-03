@@ -1,5 +1,4 @@
 <?php
-namespace Rony539\PhpFramework\Example;
 require_once __DIR__."/../../vendor/autoload.php";
 
 class RequestHandlerTest extends \Rony539\PhpFramework\TestSystem{
