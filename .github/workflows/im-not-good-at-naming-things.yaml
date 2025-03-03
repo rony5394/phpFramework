@@ -1,0 +1,33 @@
+name: Standard Test Workflow
+on:
+  push:
+    branches:
+      - dev
+      - feature/*  # Runs tests on feature branches
+  pull_request:
+    branches:
+      - feature/*
+      - dev
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          #extensions: mbstring, pdo, pdo_mysql, intl
+          coverage: none
+
+      - name: Install dependencies
+        run: |
+          composer install --no-progress --prefer-dist
+
+      - name: Run Tests
+        run: bash RunAllTests.sh
