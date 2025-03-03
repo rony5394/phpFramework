@@ -5,7 +5,7 @@
     "autoload": {
         "psr-4": {
             "Rony539\\PhpFramework\\": "src/",
-            "Rony539\\PhpFramework\\Example\\": "example/"
+            "Rony539\\PhpFramework\\Example\\": "example/src/"
         }
     },
     "require": {}
