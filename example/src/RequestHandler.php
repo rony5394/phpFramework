@@ -4,7 +4,7 @@ namespace Rony539\PhpFramework\Example;
 
 class RequestHandler{
 	static public function loadDataById(): int{
-		$requestBody = json_decode($GLOBALS["jsonStringBody"]);
+		$requestBody = \Rony539\PhpFramework\Toolkit::$requestJsonBodyParsed;
 		if(!isset($requestBody->id))return 400;
 
 		if(!is_file(TEST_DB_PATH))return 404;
@@ -18,8 +18,8 @@ class RequestHandler{
 		return 200;
 	}
 
-	static public function saveData(){
-		$requestBody = json_decode($GLOBALS["jsonStringBody"]);
+	static public function saveData(): int{
+		$requestBody = \Rony539\PhpFramework\Toolkit::$requestJsonBodyParsed;
 
 		if(!isset($requestBody->data))return 400;
 
