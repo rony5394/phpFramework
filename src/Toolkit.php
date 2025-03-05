@@ -22,12 +22,19 @@ class Toolkit{
 		$requiredKeys = (array) $requiredKeys;
 		$data = (array) $data;
 
-		foreach ($requiredKeys as $key => $value) {
-			if(!isset($data[$key])) return false;
-			if(gettype($data[$key]) != $value) return false;
+		foreach ($requiredKeys as $requiredKey => $requiredType) {
+
+			if(is_array($data[$requiredKey])){
+				if(!self::checkObjectForm($requiredType, $data[$requiredKey])) return false;
+				continue;
+			}
+
+			
+			if(!isset($data[$requiredKey])) return false;
+			if(gettype($data[$requiredKey]) != $requiredType) return false;
 		}
 		return true;
 	}
-
+d
 
 }
