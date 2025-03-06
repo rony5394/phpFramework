@@ -15,7 +15,9 @@ class Toolkit{
 		self::$requestedHttpRoute = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 		self::$requestedHttpMethod = $_SERVER['REQUEST_METHOD'];
 
-		self::$requestJsonBodyParsed = json_decode(file_get_contents("php://input"));;
+		$body = json_decode(file_get_contents("php://input"));
+
+		self::$requestJsonBodyParsed = isset($body) ? $body : (object)[];
 	}
 
 	static function checkObjectForm(array | object $requiredKeys, array | object $data): bool{
@@ -23,6 +25,7 @@ class Toolkit{
 		$data = (array) $data;
 
 		foreach ($requiredKeys as $requiredKey => $requiredType) {
+			if(!isset($data[$requiredKey]))return false;
 
 			if(is_array($data[$requiredKey])){
 				if(!self::checkObjectForm($requiredType, $data[$requiredKey])) return false;

@@ -40,4 +40,9 @@ class RequestHandler{
 		echo json_encode(["id"=> $newDataId]);
 		return 201;
 	}
+
+	static public function loadSecretData(){
+		echo "Red is Sus!";
+		return 200;
+	}
 }
