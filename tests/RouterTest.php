@@ -24,7 +24,7 @@ class RouterTest extends \Rony539\PhpFramework\TestSystem {
 	}
 
 	function testDispatch(){
-		$this->router->route("GET", "/itWorksUnderWater", "RouterTest::mockHandlerer", "RouterTest::mockHandlerer");
+		$this->router->route("GET", "/itWorksUnderWater", "RouterTest::mockHandlerer");
 		$httpStatusCode = $this->router->dispatch("GET", "/itWorksUnderWater");
 
 		$this->assertEquals($httpStatusCode, 911);
