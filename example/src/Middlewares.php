@@ -8,9 +8,9 @@ class Middlewares{
 	static public function statelessAuth(){
 		$hasValidForm = Toolkit::checkObjectForm(["password"=>"string"], Toolkit::$requestJsonBodyParsed);
 
-		if(!$hasValidForm)return 401;
+		if(!$hasValidForm)return 400;
 
-		// If you don't use toolkit you can use php://input
+		// If you don't want to use toolkit you can use php://input
 		if(Toolkit::$requestJsonBodyParsed->password != SECRET_PASSWORD) return 401;
 
 		return;
