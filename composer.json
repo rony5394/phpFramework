@@ -1,6 +1,6 @@
 {
-    "version":"0.0",
     "name": "rony539/php-framework",
+    "description": "Simple php framework for free use",
     "type": "library",
     "autoload": {
         "psr-4": {
@@ -8,5 +8,6 @@
             "Rony539\\PhpFramework\\Example\\": "example/src/"
         }
     },
-    "require": {}
+    "require": {},
+    "license": "Apache-2.0"
 }
