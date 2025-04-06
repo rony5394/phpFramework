@@ -1,7 +1,6 @@
 <?php
 
 namespace Rony539\PhpFramework;
-require_once __DIR__."/../vendor/autoload.php";
 
 class Toolkit{
 	// I like this syntax :D

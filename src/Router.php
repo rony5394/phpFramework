@@ -1,6 +1,5 @@
 <?php
 namespace Rony539\PhpFramework;
-require_once __DIR__."/../vendor/autoload.php";
 
 class Router {
 	// I could make it private but...
@@ -16,17 +15,21 @@ class Router {
 		$this->middlewares[$name] = $handler;
 	}
 
+	private function setResponseCode(int $responseCode): int {
+		http_response_code($responseCode);return $responseCode;
+	}
+
 	public function dispatch(string $requestedHttpMethod, string $requestedHttpPath): int {
 
-		if(!isset($this->routes[$requestedHttpPath]))return 404;
-		if(!isset($this->routes[$requestedHttpPath][$requestedHttpMethod]))return 405;
+		if(!isset($this->routes[$requestedHttpPath]))return $this->setResponseCode(404);
+		if(!isset($this->routes[$requestedHttpPath][$requestedHttpMethod]))return $this->setResponseCode(405);
 
 		ob_start();
 			foreach ($this->routes[$requestedHttpPath][$requestedHttpMethod]["middlewares"] as $middlewareName) {
 				$middlewareCallable = $this->middlewares[$middlewareName];
 
 				$response_code = $middlewareCallable();
-				if($response_code)return $response_code;
+				if($response_code)return $this->setResponseCode($response_code);
 			}
 
 
@@ -35,7 +38,7 @@ class Router {
 		if(!is_int($response_code)){
 			throw new \Exception("Route $requestedHttpMethod '$requestedHttpPath' did not returned status code!");
 		}
-		return $response_code;
+		return $this->setResponseCode($response_code);
 	}
 
 
