@@ -4,8 +4,8 @@ namespace Rony539\PhpFramework;
 
 class Toolkit{
 	// I like this syntax :D
-	static public string $requestedHttpRoute;
 	static public string $requestedHttpMethod;
+	static public string $requestedHttpRoute;
 
 	static public object $requestJsonBodyParsed;
 
@@ -17,6 +17,14 @@ class Toolkit{
 		$body = json_decode(file_get_contents("php://input"));
 
 		self::$requestJsonBodyParsed = isset($body) ? $body : (object)[];
+	}
+
+	static function checkBodyForm(array | object $requiredKeys): bool{
+		$body = [];
+		if(!isset($_REQUEST))$body = $_REQUEST;
+		if(!isset(self::$requestJsonBodyParsed))$body = self::$requestJsonBodyParsed;
+
+		return self::checkObjectForm($requiredKeys, $body);
 	}
 
 	static function checkObjectForm(array | object $requiredKeys, array | object $data): bool{

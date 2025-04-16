@@ -2,9 +2,11 @@
 
 namespace Rony539\PhpFramework\Example;
 
+use \Rony539\PhpFramework\Toolkit;
+
 class RequestHandler{
 	static public function loadDataById(): int{
-		$requestBody = \Rony539\PhpFramework\Toolkit::$requestJsonBodyParsed;
+		$requestBody = Toolkit::$requestJsonBodyParsed;
 		if(!isset($requestBody->id))return 400;
 
 		if(!is_file(TEST_DB_PATH))return 404;
@@ -19,7 +21,7 @@ class RequestHandler{
 	}
 
 	static public function saveData(): int{
-		$requestBody = \Rony539\PhpFramework\Toolkit::$requestJsonBodyParsed;
+		$requestBody = Toolkit::$requestJsonBodyParsed;
 
 		if(!isset($requestBody->data))return 400;
 
