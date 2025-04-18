@@ -28,6 +28,15 @@ class ToolkitTest extends \Rony539\PhpFramework\TestSystem{
 				]
 			]);
 		$this->assertEquals($output, true);
+
+        $output = Toolkit::checkObjectForm([
+            "kebab"=> "integer",
+            "notANull" => "!null"
+        ],[
+                "kebab"=> 1,
+                "notANull" => "im a null"
+            ]);
+        $this->assertEquals($output, true);
 	}
 }
 new ToolkitTest();

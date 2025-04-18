@@ -21,8 +21,8 @@ class Toolkit{
 
 	static function checkBodyForm(array | object $requiredKeys): bool{
 		$body = [];
-		if(!isset($_REQUEST))$body = $_REQUEST;
-		if(!isset(self::$requestJsonBodyParsed))$body = self::$requestJsonBodyParsed;
+		if(isset($_REQUEST))$body = $_REQUEST;
+		if(isset(self::$requestJsonBodyParsed))$body = self::$requestJsonBodyParsed;
 
 		return self::checkObjectForm($requiredKeys, $body);
 	}
@@ -32,6 +32,7 @@ class Toolkit{
 		$data = (array) $data;
 
 		foreach ($requiredKeys as $requiredKey => $requiredType) {
+
 			if(!isset($data[$requiredKey]))return false;
 
 			if(is_array($data[$requiredKey])){
@@ -40,8 +41,11 @@ class Toolkit{
 			}
 
 			
-			if(!isset($data[$requiredKey])) return false;
-			if(gettype($data[$requiredKey]) != $requiredType) return false;
+            if(!isset($data[$requiredKey])) return false;
+            if(str_starts_with($requiredType, "!")){
+                if(gettype($data[$requiredKey]) == substr($requiredType,1)) return false;
+            }
+            elseif(gettype($data[$requiredKey]) != $requiredType) return false;
 		}
 		return true;
 	}
