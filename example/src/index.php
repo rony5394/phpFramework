@@ -16,6 +16,4 @@ Router::route("GET", "/data", "\\Rony539\\PhpFramework\\Example\\RequestHandler:
 Router::route("POST", "/data", "\\Rony539\\PhpFramework\\Example\\RequestHandler::saveData");
 Router::route("GET", "/secretData", "\\Rony539\\PhpFramework\\Example\\RequestHandler::loadSecretData",["SimpleAuth"]);
 
-$responseCode = Router::dispatch(Toolkit::$requestedHttpMethod, Toolkit::$requestedHttpRoute);
-
-http_response_code($responseCode);
+Router::dispatch(Toolkit::$requestedHttpMethod, Toolkit::$requestedHttpRoute);
