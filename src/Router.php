@@ -1,41 +1,44 @@
 <?php
 namespace Rony539\PhpFramework;
-require_once __DIR__."/../vendor/autoload.php";
 
 class Router {
 	// I could make it private but...
-	protected $routes = [];
-	protected $middlewares = [];
+	static protected $routes = [];
+	static protected $middlewares = [];
 
-	public function route(string $httpMethod, string $httpPath, callable $handler, array $middlewares = []): void{
-		$this->routes[$httpPath][$httpMethod]["handler"] = $handler;
-		$this->routes[$httpPath][$httpMethod]["middlewares"] = $middlewares;
+	static public function route(string $httpMethod, string $httpPath, callable $handler, array $middlewares = []): void{
+		self::$routes[$httpPath][$httpMethod]["handler"] = $handler;
+		self::$routes[$httpPath][$httpMethod]["middlewares"] = $middlewares;
 	}
 
-	public function middleware(string $name, callable $handler): void{
-		$this->middlewares[$name] = $handler;
+	static public function middleware(string $name, callable $handler): void{
+		self::$middlewares[$name] = $handler;
 	}
 
-	public function dispatch(string $requestedHttpMethod, string $requestedHttpPath): int {
+	static private function setResponseCode(int $responseCode): int {
+		http_response_code($responseCode);return $responseCode;
+	}
 
-		if(!isset($this->routes[$requestedHttpPath]))return 404;
-		if(!isset($this->routes[$requestedHttpPath][$requestedHttpMethod]))return 405;
+	static public function dispatch(string $requestedHttpMethod, string $requestedHttpPath): int {
+
+		if(!isset(self::$routes[$requestedHttpPath]))return self::setResponseCode(404);
+		if(!isset(self::$routes[$requestedHttpPath][$requestedHttpMethod]))return self::setResponseCode(405);
 
 		ob_start();
-			foreach ($this->routes[$requestedHttpPath][$requestedHttpMethod]["middlewares"] as $middlewareName) {
-				$middlewareCallable = $this->middlewares[$middlewareName];
+			foreach (self::$routes[$requestedHttpPath][$requestedHttpMethod]["middlewares"] as $middlewareName) {
+				$middlewareCallable = self::$middlewares[$middlewareName];
 
 				$response_code = $middlewareCallable();
-				if($response_code)return $response_code;
+				if($response_code)return self::setResponseCode($response_code);
 			}
 
 
-		$response_code = $this->routes[$requestedHttpPath][$requestedHttpMethod]["handler"]();
+		$response_code = self::$routes[$requestedHttpPath][$requestedHttpMethod]["handler"]();
 
 		if(!is_int($response_code)){
 			throw new \Exception("Route $requestedHttpMethod '$requestedHttpPath' did not returned status code!");
 		}
-		return $response_code;
+		return self::setResponseCode($response_code);
 	}
 
 

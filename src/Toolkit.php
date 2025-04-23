@@ -1,12 +1,11 @@
 <?php
 
 namespace Rony539\PhpFramework;
-require_once __DIR__."/../vendor/autoload.php";
 
 class Toolkit{
 	// I like this syntax :D
-	static public string $requestedHttpRoute;
 	static public string $requestedHttpMethod;
+	static public string $requestedHttpRoute;
 
 	static public object $requestJsonBodyParsed;
 
@@ -20,11 +19,20 @@ class Toolkit{
 		self::$requestJsonBodyParsed = isset($body) ? $body : (object)[];
 	}
 
+	static function checkBodyForm(array | object $requiredKeys): bool{
+		$body = [];
+		if(isset($_REQUEST))$body = $_REQUEST;
+		if(isset(self::$requestJsonBodyParsed))$body = self::$requestJsonBodyParsed;
+
+		return self::checkObjectForm($requiredKeys, $body);
+	}
+
 	static function checkObjectForm(array | object $requiredKeys, array | object $data): bool{
 		$requiredKeys = (array) $requiredKeys;
 		$data = (array) $data;
 
 		foreach ($requiredKeys as $requiredKey => $requiredType) {
+
 			if(!isset($data[$requiredKey]))return false;
 
 			if(is_array($data[$requiredKey])){
@@ -33,8 +41,11 @@ class Toolkit{
 			}
 
 			
-			if(!isset($data[$requiredKey])) return false;
-			if(gettype($data[$requiredKey]) != $requiredType) return false;
+            if(!isset($data[$requiredKey])) return false;
+            if(str_starts_with($requiredType, "!")){
+                if(gettype($data[$requiredKey]) == substr($requiredType,1)) return false;
+            }
+            elseif(gettype($data[$requiredKey]) != $requiredType) return false;
 		}
 		return true;
 	}

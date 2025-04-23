@@ -1,6 +1,5 @@
 <?php
 namespace Rony539\PhpFramework;
-require_once __DIR__."/../vendor/autoload.php";
 
 abstract class TestSystem{
 	final function __construct(){
