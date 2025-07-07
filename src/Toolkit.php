@@ -7,7 +7,7 @@ class Toolkit{
 	static public string $requestedHttpMethod;
 	static public string $requestedHttpRoute;
 
-	static public object $requestJsonBodyParsed;
+	static public ?object $requestJsonBodyParsed;
 
 	
 	static function init(): void{
@@ -16,7 +16,7 @@ class Toolkit{
 
 		$body = json_decode(file_get_contents("php://input"));
 
-		self::$requestJsonBodyParsed = isset($body) ? $body : (object)[];
+		self::$requestJsonBodyParsed = isset($body) ? $body : null; 
 	}
 
 	static function checkBodyForm(array | object $requiredKeys): bool{
@@ -41,7 +41,6 @@ class Toolkit{
 			}
 
 			
-            if(!isset($data[$requiredKey])) return false;
             if(str_starts_with($requiredType, "!")){
                 if(gettype($data[$requiredKey]) == substr($requiredType,1)) return false;
             }
