@@ -19,6 +19,7 @@ class TemplateTest extends \Rony539\PhpFramework\TestSystem {
 			@#each($items as $item)@
 				<p>@$item@</p>
 			@/each@
+			<p>Your email: jonn@@example.com</p>
 			</body>
 		</html>
 		');

@@ -41,9 +41,16 @@ class Template {
 
 			foreach(mb_str_split($templateContent) as $char ){
 				$buffer .= $char;
+
 				if(!str_starts_with($buffer, "@")){
 					$output .= $buffer;
 					$buffer = "";
+					continue;
+				}
+
+				if($buffer == "@@"){
+					$buffer = "";
+					$output .= "@";
 					continue;
 				}
 
@@ -73,8 +80,6 @@ class Template {
 
 				if(str_starts_with($buffer, "/if"))
 					$buffer = str_replace("/if", "endif;", $buffer);
-				
-
 
 				$buffer = "<?php " . $buffer . " ?>";
 				$output .= $buffer;
