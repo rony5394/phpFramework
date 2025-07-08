@@ -18,7 +18,9 @@ class Template {
 	}
 
 	static public function AddTemplateFromFile(string $templateName, string $filePath){
-		Template::AddTemplate($templateName, file_get_contents($filePath));
+		$fileContent = file_get_contents($filePath);
+		if(!$fileContent) throw new \Exception("Template file $filePath cannot be loaded!");;
+		Template::AddTemplate($templateName, $fileContent);
 	}
 
 	static public function AddTemplate(string $templateName, string $templateContent){
