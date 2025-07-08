@@ -46,7 +46,7 @@ class Template {
 
 		if(!is_file($compiledFilePath)){
 
-			for($i = 0; $i < len($templateContent); $i++){
+			for($i = 0; $i < strlen($templateContent); $i++){
 				$char = mb_substr($templateContent, $i, 1);
 				$buffer .= $char;
 
