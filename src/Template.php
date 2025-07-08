@@ -46,7 +46,11 @@ class Template {
 
 		if(!is_file($compiledFilePath)){
 
-			for($i = 0; $i < strlen($templateContent); $i++){
+			$ifCount = 0;
+			$eachCount = 0;
+			$atCount = 0;
+
+			for($i = 0; $i < mb_strlen($templateContent); $i++){
 				$char = mb_substr($templateContent, $i, 1);
 				$buffer .= $char;
 
@@ -72,28 +76,43 @@ class Template {
 				if(str_starts_with($buffer, "#each")){
 					$buffer = str_replace("#each", "foreach ", $buffer);
 					$buffer .= ":";
+					$eachCount ++;
 				}
 
 				if(str_starts_with($buffer, "#if")){
 					$buffer = str_replace("#if", "if ", $buffer);
 					$buffer .= ":";
+					$ifCount ++;
 				}
 
-				if(str_starts_with($buffer, "/each"))
+				if(str_starts_with($buffer, "/each")){
 					$buffer = str_replace("/each", "endforeach;", $buffer);
+					$eachCount --;
+				}
 				
 
 				if(str_starts_with($buffer, "#else"))
 					$buffer = str_replace("#else", "else:", $buffer);
 
-				if(str_starts_with($buffer, "/if"))
+				if(str_starts_with($buffer, "/if")){
 					$buffer = str_replace("/if", "endif;", $buffer);
+					$ifCount --;
+				}
 
 				$buffer = "<?php " . $buffer . " ?>";
 				$output .= $buffer;
 				$buffer = "";	
 			
 			}
+			$atCount = substr_count($templateContent, "@");
+
+			if($ifCount != 0)
+				throw new \Exception("Template $templateName if - endif != 0");
+			if($eachCount != 0)
+				throw new \Exception("Template $templateName each - endeach != 0");
+			if($atCount % 2 != 0)
+				throw new \Exception("Template $templateName has unclosed tags.");
+
 			$wasSuccessfull = file_put_contents($compiledFilePath, $output, LOCK_EX);
 			if($wasSuccessfull === false)
 				throw new Exception("Template $compiledFilePath cannot be writen.");
