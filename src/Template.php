@@ -46,7 +46,8 @@ class Template {
 
 		if(!is_file($compiledFilePath)){
 
-			foreach(mb_str_split($templateContent) as $char ){
+			for($i = 0; $i < len($templateContent); $i++){
+				$char = mb_substr($templateContent, $i, 1);
 				$buffer .= $char;
 
 				if(!str_starts_with($buffer, "@")){
