@@ -2,6 +2,8 @@
 declare(strict_types=1);
 namespace Rony539\PhpFramework;
 
+use Exception;
+
 class Template {
 	static protected array $templates = [];
 
@@ -19,7 +21,7 @@ class Template {
 
 	static public function AddTemplateFromFile(string $templateName, string $filePath){
 		$fileContent = file_get_contents($filePath);
-		if(!$fileContent) throw new \Exception("Template file $filePath cannot be loaded!");;
+		if($fileContent === false) throw new \Exception("Template file $filePath cannot be loaded!");;
 		Template::AddTemplate($templateName, $fileContent);
 	}
 
@@ -27,6 +29,9 @@ class Template {
 		Template::$templates[$templateName] = $templateContent;	
 	}
 	static public function Render(string $templateName, array $params){
+		if(!isset(Template::$templates[$templateName]))
+			throw new \Exception("Template $templateName, doesn't exists.");
+
 		$templateContent = Template::$templates[$templateName];	
 		$templateHash = sha1($templateContent);
 		$compiledFolderPath =  self::FindRoot(). "/.cache"; 
@@ -88,10 +93,12 @@ class Template {
 				$buffer = "";	
 			
 			}
-			file_put_contents($compiledFilePath, $output);
+			$wasSuccessfull = file_put_contents($compiledFilePath, $output, LOCK_EX);
+			if($wasSuccessfull === false)
+				throw new Exception("Template $compiledFilePath cannot be writen.");
 
 		}
-		extract($params);
+		extract($params, EXTR_SKIP);
 		require($compiledFilePath);
 
 	}
