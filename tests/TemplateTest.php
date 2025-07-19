@@ -26,7 +26,7 @@ class TemplateTest extends \Rony539\PhpFramework\TestSystem {
 	}
 	
 	function testRender(){
-		Template::Render("testTemplate", ["items"=>["kebab", "capybara", "pomoc"], "title"=>"kebab"]);
+		Template::Render("testTemplate", ["items"=>["kebab", "capybara", "pomoc"], "title"=>"kebab"], "AUTODETECT");
 	} 
 }
 new TemplateTest();

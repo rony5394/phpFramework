@@ -9,11 +9,19 @@ class Template {
 
 	static private function FindRoot(): string{
 		$dir = __DIR__;
+		$i = 1;
+		$maxDepth = 5;
 
 		while($dir = dirname($dir)){	
-			if(in_array("composer.json", scandir($dir)) ||
-			in_array(".git", scandir($dir)))
+			if($i >= $maxDepth)throw new Exception("No root folder for cache was found!");
+			if(
+			 in_array("composer.json", scandir($dir)) ||
+			 in_array(".git", scandir($dir)) ||
+			 in_array("projectroot", scandir($dir))
+			){
 				return $dir;
+			}
+			$i++;
 		}	
 
 		return "";
@@ -28,17 +36,14 @@ class Template {
 	static public function AddTemplate(string $templateName, string $templateContent){
 		Template::$templates[$templateName] = $templateContent;	
 	}
-	static public function Render(string $templateName, array $params){
+	static public function Render(string $templateName, array $params, string $cacheDirectory){
 		if(!isset(Template::$templates[$templateName]))
 			throw new \Exception("Template $templateName, doesn't exists.");
 
 		$templateContent = Template::$templates[$templateName];	
 		$templateHash = sha1($templateContent);
-		$compiledFolderPath =  self::FindRoot(). "/.cache"; 
+		$compiledFolderPath = ($cacheDirectory != "AUTODETECT") ? $cacheDirectory : self::FindRoot(). "/.cache"; 
 		$compiledFilePath = $compiledFolderPath . "/template_$templateHash";
-
-		$buffer = "";
-		$output = "";
 
 		if(!is_dir($compiledFolderPath)){
 			mkdir($compiledFolderPath);
