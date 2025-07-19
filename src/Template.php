@@ -29,7 +29,7 @@ class Template {
 
 	static public function AddTemplateFromFile(string $templateName, string $filePath){
 		$fileContent = file_get_contents($filePath);
-		if($fileContent === false) throw new \Exception("Template file $filePath cannot be loaded!");;
+		if($fileContent === false) throw new \Exception("Template file $filePath cannot be loaded!");
 		Template::AddTemplate($templateName, $fileContent);
 	}
 
@@ -46,14 +46,10 @@ class Template {
 		$compiledFilePath = $compiledFolderPath . "/template_$templateHash";
 
 		if(!is_dir($compiledFolderPath)){
-			mkdir($compiledFolderPath);
+			mkdir($compiledFolderPath,recursive:true);
 		}
 
 		if(!is_file($compiledFilePath)){
-
-			$ifCount = 0;
-			$eachCount = 0;
-			$atCount = 0;
 
 			$patterns = [
 			    '/@@/' => '@',
@@ -67,25 +63,19 @@ class Template {
 	
 			    '/@\/each@/s' => '<?php endforeach; ?>',
 
-			    '/@(\$\w+)@/s' => '<?php echo htmlspecialchars($1, ENT_QUOTES, "UTF-8"); ?>',
+			    '/@(\$[^@]+?)@/s' => '<?php echo htmlspecialchars($1, ENT_QUOTES, "UTF-8"); ?>',
 
 			];
 
 			$output = preg_replace(array_keys($patterns), array_values($patterns), $templateContent);
 
-
-			$atCount = substr_count($templateContent, "@");
-
-			if($ifCount != 0)
-				throw new \Exception("Template $templateName if - endif != 0");
-			if($eachCount != 0)
-				throw new \Exception("Template $templateName each - endeach != 0");
-			if($atCount % 2 != 0)
-				throw new \Exception("Template $templateName has unclosed tags.");
-
-			$wasSuccessfull = file_put_contents($compiledFilePath, $output, LOCK_EX);
+			$tempFile = $compiledFolderPath . "/" . uniqid(more_entropy:true) . ".tmp";
+			$wasSuccessfull = file_put_contents($tempFile, $output, LOCK_EX);
 			if($wasSuccessfull === false)
-				throw new Exception("Template $compiledFilePath cannot be writen.");
+				throw new Exception("Could not write temporary file $tempFile for template $templateName");
+			$wasSuccessfull = rename($tempFile, $compiledFilePath);
+			if($wasSuccessfull == false)
+				throw new Exception("Could not rename temporary file $tempFile to $compiledFilePath");
 
 		}
 		extract($params, EXTR_SKIP);
