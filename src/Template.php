@@ -50,60 +50,25 @@ class Template {
 			$eachCount = 0;
 			$atCount = 0;
 
-			for($i = 0; $i < mb_strlen($templateContent); $i++){
-				$char = mb_substr($templateContent, $i, 1);
-				$buffer .= $char;
+			$patterns = [
+			    '/@@/' => '@',
+			    '/@#if\s*\((.*?)\)@/s' => '<?php if ($1): ?>',
 
-				if(!str_starts_with($buffer, "@")){
-					$output .= $buffer;
-					$buffer = "";
-					continue;
-				}
+			    '/@#else@/s' => '<?php else: ?>',
 
-				if($buffer == "@@"){
-					$buffer = "";
-					$output .= "@";
-					continue;
-				}
+			    '/@\/if@/s' => '<?php endif; ?>',
 
-				if(strlen($buffer) < 3 || !str_ends_with($buffer, "@"))continue;
-				$buffer = substr($buffer, 1, -1);
+			    '/@#each\s*\((.*?)\)@/s' => '<?php foreach ($1): ?>',
+	
+			    '/@\/each@/s' => '<?php endforeach; ?>',
 
-				if(str_starts_with($buffer, "$")){
-					$buffer = 'echo htmlspecialchars('.$buffer.', ENT_QUOTES, "UTF-8");';
-				}
+			    '/@(\$\w+)@/s' => '<?php echo htmlspecialchars($1, ENT_QUOTES, "UTF-8"); ?>',
 
-				if(str_starts_with($buffer, "#each")){
-					$buffer = str_replace("#each", "foreach ", $buffer);
-					$buffer .= ":";
-					$eachCount ++;
-				}
+			];
 
-				if(str_starts_with($buffer, "#if")){
-					$buffer = str_replace("#if", "if ", $buffer);
-					$buffer .= ":";
-					$ifCount ++;
-				}
+			$output = preg_replace(array_keys($patterns), array_values($patterns), $templateContent);
 
-				if(str_starts_with($buffer, "/each")){
-					$buffer = str_replace("/each", "endforeach;", $buffer);
-					$eachCount --;
-				}
-				
 
-				if(str_starts_with($buffer, "#else"))
-					$buffer = str_replace("#else", "else:", $buffer);
-
-				if(str_starts_with($buffer, "/if")){
-					$buffer = str_replace("/if", "endif;", $buffer);
-					$ifCount --;
-				}
-
-				$buffer = "<?php " . $buffer . " ?>";
-				$output .= $buffer;
-				$buffer = "";	
-			
-			}
 			$atCount = substr_count($templateContent, "@");
 
 			if($ifCount != 0)
