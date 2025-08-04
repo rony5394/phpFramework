@@ -1,33 +1,60 @@
 <?php
-require_once __DIR__."/../vendor/autoload.php";
-use \Rony539\PhpFramework\Router;
+use PHPUnit\Framework\TestCase;
+use Rony539\PhpFramework\Router;
 
-class RouterTest extends \Rony539\PhpFramework\TestSystem {
+class RouterTest extends TestCase
+{
+    protected function setUp(): void
+    {
+        $refClass = new \ReflectionClass(Router::class);
 
-	function setUp() {}
+        $routesProp = $refClass->getProperty('routes');
+        $routesProp->setAccessible(true);
+        $routesProp->setValue(null, []);
 
-	static function mockHandlerer(){
-		return 911;
-	}
+        $middlewaresProp = $refClass->getProperty('middlewares');
+        $middlewaresProp->setAccessible(true);
+        $middlewaresProp->setValue(null, []);
+    }
 
-	function test404(){
-		$httpStatusCode = Router::dispatch("GET", "/notExisting");
-		$this->assertEquals($httpStatusCode, 404);
-	}
+    public function testRouteAndDispatch(){
+	    Router::route("GET", "/test", function(){
+	    	return 200;
+	    });
 
-	function test405(){
-		Router::route("GET", "/getOnly", "RouterTest::mockHandlerer");
-		$httpStatusCode = Router::dispatch("POST", "/getOnly");
-		$this->assertEquals($httpStatusCode, 405);
-	}
+	    $status = Router::dispatch("GET", "/test");
+	    $this->assertEquals($status, 200);
+    }
 
-	function testDispatch(){
-		Router::route("GET", "/itWorksUnderWater", "RouterTest::mockHandlerer");
-		$httpStatusCode = Router::dispatch("GET", "/itWorksUnderWater");
+    public function testNotFound(){
+	    Router::route("GET", "/test", function(){
+		    return 200;
+	    });
+	    $status = Router::dispatch("GET", "/thisRouteShouldntExists");
+	    $this->assertEquals($status, 404);
 
-		$this->assertEquals($httpStatusCode, 911);
-	}
+    }
 
+    public function testMethodNotAllowed(){
+	    Router::route("GET", "/test", function(){
+		    return 200;
+	    });
+	    $status = Router::dispatch("POST", "/test");
+	    $this->assertEquals($status, 405);
+    
+    }
+
+    public function testMiddlewareIntercept(){
+	    Router::middleware("TestMiddleware", function(){
+	    	return 503;
+	    });
+
+	    Router::route("GET", "/test", function(){
+		    return 200;
+	    }, ["TestMiddleware"]);
+
+	    $status = Router::dispatch("GET", "/test");
+	    $this->assertEquals($status, 503);
+    }
 }
 
-new RouterTest();

@@ -24,7 +24,8 @@ class Router {
 		if(!isset(self::$routes[$requestedHttpPath]))return self::setResponseCode(404);
 		if(!isset(self::$routes[$requestedHttpPath][$requestedHttpMethod]))return self::setResponseCode(405);
 
-		ob_start();
+		try{
+			ob_start();
 			foreach (self::$routes[$requestedHttpPath][$requestedHttpMethod]["middlewares"] as $middlewareName) {
 				$middlewareCallable = self::$middlewares[$middlewareName];
 
@@ -32,13 +33,18 @@ class Router {
 				if($response_code)return self::setResponseCode($response_code);
 			}
 
+			$response_code = self::$routes[$requestedHttpPath][$requestedHttpMethod]["handler"]();
 
-		$response_code = self::$routes[$requestedHttpPath][$requestedHttpMethod]["handler"]();
+			if(!is_int($response_code)){
+				throw new \Exception("Route $requestedHttpMethod '$requestedHttpPath' did not returned status code!");
+			}
 
-		if(!is_int($response_code)){
-			throw new \Exception("Route $requestedHttpMethod '$requestedHttpPath' did not returned status code!");
+			$code = self::setResponseCode($response_code);
+			return $code;
 		}
-		return self::setResponseCode($response_code);
+		finally {
+			ob_end_flush();
+		}
 	}
 
 
