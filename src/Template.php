@@ -41,7 +41,7 @@ class Template {
 			throw new \Exception("Template $templateName, doesn't exists.");
 
 		$templateContent = Template::$templates[$templateName];	
-		$templateHash = sha1($templateContent);
+		$templateHash = hash("sha256", $templateContent);
 		$compiledFolderPath = ($cacheDirectory != "AUTODETECT") ? $cacheDirectory : self::FindRoot(). "/.cache"; 
 		$compiledFilePath = $compiledFolderPath . "/template_$templateHash";
 

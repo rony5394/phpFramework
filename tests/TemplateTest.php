@@ -16,7 +16,7 @@ class TemplateTest extends TestCase{
 		ob_start();
 		Template::Render("testTemplate", ["title"=>"ThisIsTitle", "items"=>["never", "gona", "give"]], "AUTODETECT"); 
 
-		$compiledOutput = file_get_contents(__DIR__."/../.cache/template_8432e3e17c4d16b1f4502cff1fd225850c116c9e");
+		$compiledOutput = file_get_contents(__DIR__."/../.cache/template_40bdc9333df2560a3293ea80586e936869608add54f18aa4083feeccfbfaaa10");
 		$predictedOutput = file_get_contents(__DIR__."/testTemplateCompiled");
 		$this->assertEquals($compiledOutput, $predictedOutput);
 
