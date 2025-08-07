@@ -41,10 +41,10 @@ class Toolkit{
 			}
 
 			
-            if(str_starts_with($requiredType, "!")){
-                if(gettype($data[$requiredKey]) == substr($requiredType,1)) return false;
-            }
-            elseif(gettype($data[$requiredKey]) != $requiredType) return false;
+	            if(str_starts_with($requiredType, "!")){
+                	if(gettype($data[$requiredKey]) == substr($requiredType,1)) return false;
+        	    }
+	            elseif(gettype($data[$requiredKey]) != $requiredType) return false;
 		}
 		return true;
 	}

@@ -1,0 +1,43 @@
+<html>
+
+
+			<head>@$title@</head>
+
+
+			<body>
+
+
+			@#if(date("H") <= 12)@
+
+
+				<p>Good Morning</p>
+
+
+			@#else@
+
+
+				<p>Good Afternoon</p>
+
+
+			@/if@
+
+
+			<h3>Your Tasks</h3>
+
+
+			@#each($items as $item)@
+
+
+				<p>@$item@</p>
+
+
+			@/each@
+
+
+			<p>Your email: jonn@@example.com</p>
+
+
+			</body>
+
+
+		</html>
