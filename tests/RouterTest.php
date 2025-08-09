@@ -23,7 +23,7 @@ class RouterTest extends TestCase
 	    });
 
 	    $status = Router::dispatch("GET", "/test");
-	    $this->assertEquals($status, 200);
+	    $this->assertEquals(200, $status);
     }
 
     public function testNotFound(){
@@ -31,7 +31,7 @@ class RouterTest extends TestCase
 		    return 200;
 	    });
 	    $status = Router::dispatch("GET", "/thisRouteShouldntExists");
-	    $this->assertEquals($status, 404);
+	    $this->assertEquals(404, $status);
 
     }
 
@@ -40,7 +40,7 @@ class RouterTest extends TestCase
 		    return 200;
 	    });
 	    $status = Router::dispatch("POST", "/test");
-	    $this->assertEquals($status, 405);
+	    $this->assertEquals(405, $status);
     
     }
 
@@ -54,7 +54,16 @@ class RouterTest extends TestCase
 	    }, ["TestMiddleware"]);
 
 	    $status = Router::dispatch("GET", "/test");
-	    $this->assertEquals($status, 503);
+	    $this->assertEquals(503, $status);
     }
+
+	public function testInvalidMiddleware(){
+	    Router::route("GET", "/test", function(){
+		    return 200;
+	    }, ["TestMiddleware"]);
+
+	    $status = Router::dispatch("GET", "/test");
+	    $this->assertEquals(500, $status);
+	}
 }
 

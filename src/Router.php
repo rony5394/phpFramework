@@ -27,9 +27,9 @@ class Router {
 		try{
 			ob_start();
 			foreach (self::$routes[$requestedHttpPath][$requestedHttpMethod]["middlewares"] as $middlewareName) {
-				$middlewareCallable = self::$middlewares[$middlewareName];
+				$middlewareCallable = &self::$middlewares[$middlewareName];
 
-				$response_code = $middlewareCallable();
+				$response_code = is_callable($middlewareCallable) ? $middlewareCallable(): 500;
 				if($response_code)return self::setResponseCode($response_code);
 			}
 
