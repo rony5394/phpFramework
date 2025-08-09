@@ -9,17 +9,16 @@ class Toolkit{
 
 	static public ?object $requestJsonBodyParsed;
 
-	
-	static function init(): void{
+	static function init(): void {
 		self::$requestedHttpRoute = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 		self::$requestedHttpMethod = $_SERVER['REQUEST_METHOD'];
 
 		$body = json_decode(file_get_contents("php://input"));
 
-		self::$requestJsonBodyParsed = isset($body) ? $body : null; 
+		self::$requestJsonBodyParsed = isset($body) ? $body : null;
 	}
 
-	static function checkBodyForm(array | object $requiredKeys): bool{
+	static function checkBodyForm(array | object $requiredKeys): bool {
 		$body = [];
 		if(isset($_REQUEST))$body = $_REQUEST;
 		if(isset(self::$requestJsonBodyParsed))$body = self::$requestJsonBodyParsed;
@@ -27,7 +26,7 @@ class Toolkit{
 		return self::checkObjectForm($requiredKeys, $body);
 	}
 
-	static function checkObjectForm(array | object $requiredKeys, array | object $data): bool{
+	static function checkObjectForm(array | object $requiredKeys, array | object $data): bool {
 		$requiredKeys = (array) $requiredKeys;
 		$data = (array) $data;
 
@@ -40,14 +39,12 @@ class Toolkit{
 				continue;
 			}
 
-			
-	            if(str_starts_with($requiredType, "!")){
-                	if(gettype($data[$requiredKey]) == substr($requiredType,1)) return false;
-        	    }
-	            elseif(gettype($data[$requiredKey]) != $requiredType) return false;
+				if(str_starts_with($requiredType, "!")){
+					if(gettype($data[$requiredKey]) == substr($requiredType,1)) return false;
+				}
+				elseif(gettype($data[$requiredKey]) != $requiredType) return false;
 		}
 		return true;
 	}
-
 
 }

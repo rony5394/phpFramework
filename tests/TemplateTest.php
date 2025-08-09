@@ -17,10 +17,10 @@ class TemplateTest extends TestCase{
 		$templatesProp->setValue(null, []);
 	}
 
-	public function testRender(){
+	public function testRender() {
 		Template::AddTemplateFromFile("testTemplate", TEST_TEMPLATE);
 		ob_start();
-		Template::Render("testTemplate", ["title"=>"ThisIsTitle", "items"=>["never", "gona", "give"]], "AUTODETECT"); 
+		Template::Render("testTemplate", ["title"=>"ThisIsTitle", "items"=>["never", "gona", "give"]], "AUTODETECT");
 		
 		$executedOutput = ob_get_clean();
 

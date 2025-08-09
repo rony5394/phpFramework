@@ -1,4 +1,5 @@
 <?php
+
 namespace Rony539\PhpFramework;
 
 class Router {
@@ -6,12 +7,12 @@ class Router {
 	static protected $routes = [];
 	static protected $middlewares = [];
 
-	static public function route(string $httpMethod, string $httpPath, callable $handler, array $middlewares = []): void{
+	static public function route(string $httpMethod, string $httpPath, callable $handler, array $middlewares = []): void {
 		self::$routes[$httpPath][$httpMethod]["handler"] = $handler;
 		self::$routes[$httpPath][$httpMethod]["middlewares"] = $middlewares;
 	}
 
-	static public function middleware(string $name, callable $handler): void{
+	static public function middleware(string $name, callable $handler): void {
 		self::$middlewares[$name] = $handler;
 	}
 
@@ -46,7 +47,5 @@ class Router {
 			ob_end_flush();
 		}
 	}
-
-
 
 }
