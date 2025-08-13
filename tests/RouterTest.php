@@ -59,7 +59,7 @@ class RouterTest extends TestCase
 	}
 
 	public function testMiddlewareContinueToHandler(): void {
-		Router::middleware("ContinueMw", function () { return 0; });
+		Router::middleware("ContinueMw", function () { return; });
 		Router::route("GET", "/test", function () { return 201; }, ["ContinueMw"]);
 		$status = Router::dispatch("GET", "/test");
 		$this->assertSame(201, $status);

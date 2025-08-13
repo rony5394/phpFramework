@@ -31,7 +31,10 @@ class Router {
 				$middlewareCallable = &self::$middlewares[$middlewareName];
 
 				$response_code = is_callable($middlewareCallable) ? $middlewareCallable(): 500;
-				if($response_code)return self::setResponseCode($response_code);
+				if($response_code && !is_int($response_code))
+					throw new \UnexpectedValueException("Middleware $middlewareName did not return int|null!");
+				if($response_code)
+					return self::setResponseCode($response_code);
 			}
 
 			$response_code = self::$routes[$requestedHttpPath][$requestedHttpMethod]["handler"]();
