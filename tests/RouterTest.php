@@ -58,7 +58,20 @@ class RouterTest extends TestCase
 		$this->assertEquals(503, $status);
 	}
 
-	public function testInvalidMiddleware() {
+	public function testMiddlewareContinueToHandler(): void {
+		Router::middleware("ContinueMw", function () { return 0; });
+		Router::route("GET", "/test", function () { return 201; }, ["ContinueMw"]);
+		$status = Router::dispatch("GET", "/test");
+		$this->assertSame(201, $status);
+	}
+
+	public function testHandlerMustReturnIntStatusCode(): void {
+		Router::route("GET", "/bad", function () { return "oops"; });
+		$this->expectException(\UnexpectedValueException::class);
+		Router::dispatch("GET", "/bad");
+	}
+
+	public function testNonExistingMiddleware() {
 		Router::route("GET", "/test", function() {
 			return 200;
 		}, ["TestMiddleware"]);
@@ -66,5 +79,6 @@ class RouterTest extends TestCase
 		$status = Router::dispatch("GET", "/test");
 		$this->assertEquals(500, $status);
 	}
+
 }
 

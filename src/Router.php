@@ -37,7 +37,7 @@ class Router {
 			$response_code = self::$routes[$requestedHttpPath][$requestedHttpMethod]["handler"]();
 
 			if(!is_int($response_code)){
-				throw new \Exception("Route $requestedHttpMethod '$requestedHttpPath' did not returned status code!");
+				throw new \UnexpectedValueException("Route $requestedHttpMethod '$requestedHttpPath' did not returned a valid status code!");
 			}
 
 			$code = self::setResponseCode($response_code);
