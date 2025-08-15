@@ -2,3 +2,5 @@
 testing.json
 *.sublime-workspace
 /.cache
+.phpunit.cache/
+.php-cs-fixer.cache

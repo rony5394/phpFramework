@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 namespace Rony539\PhpFramework;
 
@@ -7,12 +8,12 @@ use Exception;
 class Template {
 	static protected array $templates = [];
 
-	static private function FindRoot(): string{
+	static private function FindRoot(): string {
 		$dir = __DIR__;
 		$i = 1;
 		$maxDepth = 5;
 
-		while($dir = dirname($dir)){	
+		while($dir = dirname($dir)){
 			if($i >= $maxDepth)throw new Exception("No root folder for cache was found!");
 			if(
 			 in_array("composer.json", scandir($dir)) ||
@@ -22,27 +23,27 @@ class Template {
 				return $dir;
 			}
 			$i++;
-		}	
+		}
 
 		return "";
 	}
 
-	static public function AddTemplateFromFile(string $templateName, string $filePath){
+	static public function AddTemplateFromFile(string $templateName, string $filePath) {
 		$fileContent = file_get_contents($filePath);
 		if($fileContent === false) throw new \Exception("Template file $filePath cannot be loaded!");
 		Template::AddTemplate($templateName, $fileContent);
 	}
 
-	static public function AddTemplate(string $templateName, string $templateContent){
-		Template::$templates[$templateName] = $templateContent;	
+	static public function AddTemplate(string $templateName, string $templateContent) {
+		Template::$templates[$templateName] = $templateContent;
 	}
-	static public function Render(string $templateName, array $params, string $cacheDirectory){
+	static public function Render(string $templateName, array $params, string $cacheDirectory) {
 		if(!isset(Template::$templates[$templateName]))
 			throw new \Exception("Template $templateName, doesn't exists.");
 
-		$templateContent = Template::$templates[$templateName];	
-		$templateHash = sha1($templateContent);
-		$compiledFolderPath = ($cacheDirectory != "AUTODETECT") ? $cacheDirectory : self::FindRoot(). "/.cache"; 
+		$templateContent = Template::$templates[$templateName];
+		$templateHash = hash("sha256", $templateContent);
+		$compiledFolderPath = ($cacheDirectory != "AUTODETECT") ? $cacheDirectory : self::FindRoot(). "/.cache";
 		$compiledFilePath = $compiledFolderPath . "/template_$templateHash";
 
 		if(!is_dir($compiledFolderPath)){
@@ -52,18 +53,18 @@ class Template {
 		if(!is_file($compiledFilePath)){
 
 			$patterns = [
-			    '/@@/' => '@',
-			    '/@#if\s*\((.*?)\)@/s' => '<?php if ($1): ?>',
+				'/@@/' => '@',
+				'/@#if\s*\((.*?)\)@/s' => '<?php if ($1): ?>',
 
-			    '/@#else@/s' => '<?php else: ?>',
+				'/@#else@/s' => '<?php else: ?>',
 
-			    '/@\/if@/s' => '<?php endif; ?>',
+				'/@\/if@/s' => '<?php endif; ?>',
 
-			    '/@#each\s*\((.*?)\)@/s' => '<?php foreach ($1): ?>',
+				'/@#each\s*\((.*?)\)@/s' => '<?php foreach ($1): ?>',
 	
-			    '/@\/each@/s' => '<?php endforeach; ?>',
+				'/@\/each@/s' => '<?php endforeach; ?>',
 
-			    '/@(\$[^@]+?)@/s' => '<?php echo htmlspecialchars($1, ENT_QUOTES, "UTF-8"); ?>',
+				'/@(\$[^@]+?)@/s' => '<?php echo htmlspecialchars($1, ENT_QUOTES, "UTF-8"); ?>',
 
 			];
 

@@ -1,42 +1,53 @@
 <?php
 
-require_once __DIR__."/../vendor/autoload.php";
+// THIS TEST IS WRITEN BY GPT
+use PHPUnit\Framework\TestCase;
+use Rony539\PhpFramework\Toolkit;
 
-use \Rony539\PhpFramework\Toolkit;
+class ToolkitTest extends TestCase
+{
+	protected function setUp(): void
+	{
+		Toolkit::$requestedHttpMethod = '';
+		Toolkit::$requestedHttpRoute = '';
+		Toolkit::$requestJsonBodyParsed = (object)[];
+	}
 
-class ToolkitTest extends \Rony539\PhpFramework\TestSystem{
-	function setUp(){}
+	public function testCheckObjectFormReturnsTrue()
+	{
+		$required = ['name' => 'string', 'age' => 'integer'];
+		$data = ['name' => 'Alice', 'age' => 30];
 
-	function testCheckObjectForm(){
-		$output = Toolkit::checkObjectForm(["idk"=>"boolean"],["idk"=>true]);
-		$this->assertEquals($output, true);
-		$output = Toolkit::checkObjectForm(
-			[
-				"isValid"=> "boolean",
-				"user"=>[
-					"name"=>"string",
-					"password"=>"string",
-					"money"=>"integer"
-				]
-			],
-			[
-				"isValid"=>true,
-				"user"=>[
-					"name"=>"rick",
-					"password"=>"NeverGona",
-					"money"=>15
-				]
-			]);
-		$this->assertEquals($output, true);
+		$this->assertTrue(Toolkit::checkObjectForm($required, $data));
+	}
 
-        $output = Toolkit::checkObjectForm([
-            "kebab"=> "integer",
-            "notANull" => "!null"
-        ],[
-                "kebab"=> 1,
-                "notANull" => "im a null"
-            ]);
-        $this->assertEquals($output, true);
+	public function testCheckObjectFormReturnsFalseWhenMissingKey()
+	{
+		$required = ['name' => 'string', 'age' => 'integer'];
+		$data = ['name' => 'Alice'];
+
+		$this->assertFalse(Toolkit::checkObjectForm($required, $data));
+	}
+
+	public function testCheckBodyFormWithJsonParsed()
+	{
+		Toolkit::$requestJsonBodyParsed = (object)[
+			'email' => 'test@example.com',
+			'active' => true
+		];
+
+		$required = ['email' => 'string', 'active' => 'boolean'];
+
+		$this->assertTrue(Toolkit::checkBodyForm($required));
+	}
+
+	public function testCheckObjectFormWithNegativeType()
+	{
+		$required = ['id' => '!string'];
+		$data = ['id' => 123];
+
+		$this->assertTrue(Toolkit::checkObjectForm($required, $data));
+		$this->assertFalse(Toolkit::checkObjectForm(['id' => '!integer'], $data));
 	}
 }
-new ToolkitTest();
+

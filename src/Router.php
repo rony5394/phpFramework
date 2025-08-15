@@ -1,4 +1,5 @@
 <?php
+
 namespace Rony539\PhpFramework;
 
 class Router {
@@ -6,12 +7,12 @@ class Router {
 	static protected $routes = [];
 	static protected $middlewares = [];
 
-	static public function route(string $httpMethod, string $httpPath, callable $handler, array $middlewares = []): void{
+	static public function route(string $httpMethod, string $httpPath, callable $handler, array $middlewares = []): void {
 		self::$routes[$httpPath][$httpMethod]["handler"] = $handler;
 		self::$routes[$httpPath][$httpMethod]["middlewares"] = $middlewares;
 	}
 
-	static public function middleware(string $name, callable $handler): void{
+	static public function middleware(string $name, callable $handler): void {
 		self::$middlewares[$name] = $handler;
 	}
 
@@ -24,23 +25,30 @@ class Router {
 		if(!isset(self::$routes[$requestedHttpPath]))return self::setResponseCode(404);
 		if(!isset(self::$routes[$requestedHttpPath][$requestedHttpMethod]))return self::setResponseCode(405);
 
-		ob_start();
+		try{
+			ob_start();
 			foreach (self::$routes[$requestedHttpPath][$requestedHttpMethod]["middlewares"] as $middlewareName) {
-				$middlewareCallable = self::$middlewares[$middlewareName];
+				$middlewareCallable = &self::$middlewares[$middlewareName];
 
-				$response_code = $middlewareCallable();
-				if($response_code)return self::setResponseCode($response_code);
+				$response_code = is_callable($middlewareCallable) ? $middlewareCallable(): 500;
+				if($response_code && !is_int($response_code))
+					throw new \UnexpectedValueException("Middleware $middlewareName did not return int|null!");
+				if($response_code)
+					return self::setResponseCode($response_code);
 			}
 
+			$response_code = self::$routes[$requestedHttpPath][$requestedHttpMethod]["handler"]();
 
-		$response_code = self::$routes[$requestedHttpPath][$requestedHttpMethod]["handler"]();
+			if(!is_int($response_code)){
+				throw new \UnexpectedValueException("Route $requestedHttpMethod '$requestedHttpPath' did not returned a valid status code!");
+			}
 
-		if(!is_int($response_code)){
-			throw new \Exception("Route $requestedHttpMethod '$requestedHttpPath' did not returned status code!");
+			$code = self::setResponseCode($response_code);
+			return $code;
 		}
-		return self::setResponseCode($response_code);
+		finally {
+			ob_end_flush();
+		}
 	}
-
-
 
 }
