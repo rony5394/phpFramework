@@ -59,14 +59,14 @@ class RouterTest extends TestCase
 	}
 
 	public function testMiddlewareContinueToHandler(): void {
-		Router::middleware("ContinueMw", function () { return; });
-		Router::route("GET", "/test", function () { return 201; }, ["ContinueMw"]);
+		Router::middleware("ContinueMw", function() { return; });
+		Router::route("GET", "/test", function() { return 201; }, ["ContinueMw"]);
 		$status = Router::dispatch("GET", "/test");
 		$this->assertSame(201, $status);
 	}
 
 	public function testHandlerMustReturnIntStatusCode(): void {
-		Router::route("GET", "/bad", function () { return "oops"; });
+		Router::route("GET", "/bad", function() { return "oops"; });
 		$this->expectException(\UnexpectedValueException::class);
 		Router::dispatch("GET", "/bad");
 	}
