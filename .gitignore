@@ -4,3 +4,4 @@ testing.json
 /.cache
 .phpunit.cache/
 .php-cs-fixer.cache
+.phpactor.json
