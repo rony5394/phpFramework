@@ -2,6 +2,10 @@
 
 namespace Rony539\PhpFramework;
 
+use Error;
+use Exception;
+use OpenSwoole\Http\Server;
+
 class Router {
 	// I could make it private but...
 	static protected $routes = [];
@@ -20,7 +24,7 @@ class Router {
 		http_response_code($responseCode);return $responseCode;
 	}
 
-	static public function dispatch(string $requestedHttpMethod, string $requestedHttpPath): int {
+	static public function dispatch(string $requestedHttpMethod, string $requestedHttpPath): string | int {
 
 		if(!isset(self::$routes[$requestedHttpPath]))return self::setResponseCode(404);
 		if(!isset(self::$routes[$requestedHttpPath][$requestedHttpMethod]))return self::setResponseCode(405);
@@ -43,12 +47,24 @@ class Router {
 				throw new \UnexpectedValueException("Route $requestedHttpMethod '$requestedHttpPath' did not returned a valid status code!");
 			}
 
-			$code = self::setResponseCode($response_code);
-			return $code;
+			return ob_get_clean();
 		}
-		finally {
-			ob_end_flush();
+		catch (Exception){
+			ob_end_clean();
+			return 500;
 		}
 	}
 
+	static public function server(string $ip, int $port){
+		if(!extension_loaded("openswoole"))
+			throw new Error("Openswoole extension is not loaded and required for calling Router::server if you want to use normal http router call Router::dispatch.");
+
+		$server = new \OpenSwoole\HTTP\Server($ip, $port);
+		$server->on("Request", function(\OpenSwoole\Http\Request $request, \OpenSwoole\Http\Response $response)
+		{
+			$response->end(self::dispatch($request->getMethod(), $request->server["request_uri"]));
+		});
+
+		$server->start();
+	}
 }
