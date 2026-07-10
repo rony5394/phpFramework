@@ -2,15 +2,23 @@
 
 namespace Rony539\PhpFramework;
 
-use Error;
-use Exception;
-use OpenSwoole\Http\Server;
+require_once __DIR__ . "/../vendor/autoload.php";
+
+use OpenSwoole\Http\Server as HttpServer;
+use OpenSwoole\Http\Request;
+use OpenSwoole\Http\Response;
 
 class Router {
 	// I could make it private but...
-	static protected $routes = [];
+	/** @var array<string, array<string, array{"handler": callable, "middlewares": array<string, callable>}>> */
+	static protected array $routes = [];
+	/** @var array<string, callable> */
 	static protected $middlewares = [];
+	protected int $statusCode;
 
+	/** 
+	 * @param array<string, callable> $middlewares
+	 */
 	static public function route(string $httpMethod, string $httpPath, callable $handler, array $middlewares = []): void {
 		self::$routes[$httpPath][$httpMethod]["handler"] = $handler;
 		self::$routes[$httpPath][$httpMethod]["middlewares"] = $middlewares;
@@ -20,49 +28,70 @@ class Router {
 		self::$middlewares[$name] = $handler;
 	}
 
-	static private function setResponseCode(int $responseCode): int {
-		http_response_code($responseCode);return $responseCode;
-	}
+	public function dispatch(Request $request, Response $response):void{
+		$requestedUri = $request->server["request_uri"];
+		$requestedMethod = $request->getMethod();
 
-	static public function dispatch(string $requestedHttpMethod, string $requestedHttpPath): string | int {
+		if(gettype($requestedUri) != "string" || gettype($requestedMethod) != "string"){
+			$response->status(500, "Internal Server Error");
+			// TODO: Add log
+			$response->end("Internal Server Error");
+			return;
+		}
 
-		if(!isset(self::$routes[$requestedHttpPath]))return self::setResponseCode(404);
-		if(!isset(self::$routes[$requestedHttpPath][$requestedHttpMethod]))return self::setResponseCode(405);
 
-		try{
-			ob_start();
-			foreach (self::$routes[$requestedHttpPath][$requestedHttpMethod]["middlewares"] as $middlewareName) {
-				$middlewareCallable = &self::$middlewares[$middlewareName];
+		if(!array_key_exists($requestedUri, self::$routes)){
+			$response->status(404, "Not Found");
+			$response->end("Not Found");
+			return;
+		}
 
-				$response_code = is_callable($middlewareCallable) ? $middlewareCallable(): 500;
-				if($response_code && !is_int($response_code))
-					throw new \UnexpectedValueException("Middleware $middlewareName did not return int|null!");
-				if($response_code)
-					return self::setResponseCode($response_code);
+		if(!array_key_exists($requestedMethod, self::$routes[$requestedUri])){
+			$response->status(405, "Method Not Allowed");
+			$response->end("Method Not Allowed");
+			return;
+		}
+
+		ob_start();
+
+		$middlewares = self::$routes[$requestedUri][$requestedMethod]["middlewares"];
+		foreach($middlewares as $middleware){
+			$middlewareRes = $middleware();
+			if(gettype($middlewareRes) !== "integer" && gettype($middlewareRes) !== "NULL"){
+				$response->status(500, "Internal Server Error");
+				// TODO: Add log
+				$response->end();
+				return;
 			}
 
-			$response_code = self::$routes[$requestedHttpPath][$requestedHttpMethod]["handler"]();
-
-			if(!is_int($response_code)){
-				throw new \UnexpectedValueException("Route $requestedHttpMethod '$requestedHttpPath' did not returned a valid status code!");
+			if($middlewareRes != null){
+				$response->status($middlewareRes);
+				$response->end();
 			}
+		}
 
-			return ob_get_clean();
+		$responseCode = self::$routes[$requestedUri][$requestedMethod]["handler"]();
+
+		if(gettype($responseCode) != "integer"){
+			$response->status(500, "Internal Server Error");
+			//TODO: Add log
+			$response->end("Internal Server Error");
+			return;
 		}
-		catch (Exception){
-			ob_end_clean();
-			return 500;
-		}
+
+		$response->status($responseCode);
+
+		$response->end(ob_get_clean());
 	}
 
 	static public function server(string $ip, int $port){
-		if(!extension_loaded("openswoole"))
-			throw new Error("Openswoole extension is not loaded and required for calling Router::server if you want to use normal http router call Router::dispatch.");
+		/* if(!extension_loaded("openswoole")) */
+		/* 	throw new Error("Openswoole extension is not loaded and required for calling Router::server if you want to use normal http router call Router::dispatch."); */
 
-		$server = new \OpenSwoole\HTTP\Server($ip, $port);
-		$server->on("Request", function(\OpenSwoole\Http\Request $request, \OpenSwoole\Http\Response $response)
+		$server = new HttpServer($ip, $port);
+		$server->on("Request", function (Request $request, Response $response)
 		{
-			$response->end(self::dispatch($request->getMethod(), $request->server["request_uri"]));
+			new Router()->dispatch($request, $response);
 		});
 
 		$server->start();

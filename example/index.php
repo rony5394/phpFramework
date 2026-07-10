@@ -7,14 +7,13 @@ use Rony539\PhpFramework\Router;
 
 require_once __DIR__ . "/../vendor/autoload.php";
 
-
 Router::route(httpMethod: "GET", httpPath: "/ping", handler: function() {
 	echo "pong!";
 	return 200;
 });
 
 Router::route(httpMethod: "GET", httpPath: "/wrong", handler: function() {
-	echo "hello!";	
+	echo "hello!";
 	// Notice the missing return.
 });
 

@@ -15,7 +15,7 @@
         "phpstan/phpstan": "^2.2"
     },
     "require": {
-        "openswoole/ide-helper": "^22.1",
-        "openswoole/core": "^22.2"
+        "openswoole/ide-helper": "^26.2",
+        "openswoole/core": "^26.2"
     }
 }
