@@ -2,8 +2,6 @@
 
 namespace Rony539\PhpFramework;
 
-require_once __DIR__ . "/../vendor/autoload.php";
-
 use OpenSwoole\Http\Server as HttpServer;
 use OpenSwoole\Http\Request;
 use OpenSwoole\Http\Response;
