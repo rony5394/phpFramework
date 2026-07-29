@@ -17,5 +17,4 @@ Router::route(httpMethod: "GET", httpPath: "/wrong", handler: function() {
 	// Notice the missing return.
 });
 
-/* Router::dispatch(Toolkit::$requestedHttpMethod, Toolkit::$requestedHttpRoute); */
 Router::server(ip: "127.0.0.1", port: 6969);
