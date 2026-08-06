@@ -7,23 +7,25 @@ use OpenSwoole\Http\Request;
 use OpenSwoole\Http\Response;
 
 class Router {
-	// I could make it private but...
-	/** @var array<string, array<string, array{"handler": callable, "middlewares": string[]}>> */
+	/** @var array<string, array<string, array{"handler": callable(Request): int, "middlewares": string[]}>> */
 	static protected array $routes = [];
 	/** @var array<string, callable> */
 	static protected $middlewares = [];
 
 	/** 
 	 * @param string[] $middlewares
-	 * @param callable(): int $handler
+	 * @param callable(Request): int $handler
 	 */
 	static public function route(string $httpMethod, string $httpPath, callable $handler, array $middlewares = []): void {
-		self::$routes[$httpPath][$httpMethod]["handler"] = $handler;
-		self::$routes[$httpPath][$httpMethod]["middlewares"] = $middlewares;
+		self::$routes[$httpPath][$httpMethod] = [
+			"handler" => $handler,
+			"middlewares" => $middlewares
+		];
 	}
 
 	/**
 	 * @param callable(): ?int $handler
+	 * TODO: add the request stuff
 	 */
 	static public function middleware(string $name, callable $handler): void {
 		self::$middlewares[$name] = $handler;
@@ -86,8 +88,9 @@ class Router {
 			}
 		};
 
-		$responseCode = self::$routes[$requestedUri][$requestedMethod]["handler"]();
+		$responseCode = self::$routes[$requestedUri][$requestedMethod]["handler"]($request);
 
+		// This is here for the case when user returns something else that int.
 		if(gettype($responseCode) != "integer"){
 			$response->status(500, "Internal Server Error");
 			// TODO: Add log
@@ -95,8 +98,8 @@ class Router {
 			ob_end_clean();
 			return;
 		}
-
 		$response->status($responseCode);
+
 
 		$output = ob_get_clean();
 		if($output === false){
